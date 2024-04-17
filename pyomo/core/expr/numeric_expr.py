@@ -1347,6 +1347,62 @@ class LinearExpression(SumExpression):
             # remember them for when they show up again
             self._allowable_linear_expr_arg_types.add(arg.__class__)
         return super().create_node_with_local_data(args, classtype)
+    
+
+class PowerMonomial(NumericExpression):
+  __slots__ = ()
+
+  def deg(self):
+    return self.args[1]
+
+  def getname(self, *args, **kwds):
+    return 'pow_mon'
+  
+  # def _varpowiv(self):
+  #   _var, _exp = self.args
+
+  #   # maybe I wrote this? I kinda forgot...
+  #   if _exp % 2:
+  #     varpowlb, varpowub = (_var.lower)**_exp, (_var.upper)**_exp
+  #   else:
+  #     varpowlb = 0.0 if _var.lower <= 0 <= _var.upper \
+  #       else min(abs(_var.lower), abs(_var.upper))**_exp
+  #     varpowub = max(abs(_var.lower), abs(_var.upper))**_exp
+
+  #   return (varpowlb, varpowub)
+  
+  # def lb(self):
+  #   # _coeff = self.args[0]
+
+  #   # if _coeff >= 0:
+  #   #   return _coeff * self._varpowiv()[0]
+  #   # else:
+  #   #   return _coeff * self._varpowiv()[1]
+  #   return self._varpowiv[0]
+    
+  # def ub(self):
+  #   # _coeff = self.args[0]
+
+  #   # if _coeff >= 0:
+  #   #   return _coeff * self._varpowiv()[1]
+  #   # else:
+  #     # return _coeff * self._varpowiv()[0]
+  #   return self._varpowiv[1]
+  
+  def create_node_with_local_data(self, args, classtype=None):
+    if classtype is None:
+      classtype = self.__class__
+    return classtype(args)
+
+  # def _is_fixed(self, args):
+  #   raise NotImplementedError()
+
+  def _apply_operation(self, result):
+    _var, _exp = result
+    return _var**_exp
+
+  def _to_string(self, values, verbose, smap):
+    return f"{self.args[0].name}^{self.args[1]}"
 
 
 class NPV_SumExpression(Numeric_NPV_Mixin, LinearExpression):
