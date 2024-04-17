@@ -1,6 +1,6 @@
 import pyomo.environ as pe
 from pyomo.common.collections import ComponentMap
-import pyomo.core.expr.numeric_expr as numeric_expr
+import pyomo_coramin2.pyomo.core.expr.numeric_expr as numeric_expr
 from pyomo.core.expr.visitor import ExpressionValueVisitor
 from pyomo.core.expr.numvalue import (
     nonpyomo_leaf_types,
@@ -1091,6 +1091,10 @@ def _relax_root_to_leaf_UnaryFunctionExpression(node, relaxation_side_map):
         _unary_root_to_leaf_map[node.getname()](node, relaxation_side_map)
     else:
         raise NotImplementedError('Cannot automatically relax ' + str(node))
+    
+
+def _relax_root_to_leaf_PowerMonomial(node, relaxation_side_map):
+    raise NotImplemented('We shall construct polynomial envelope here')
 
 
 def _relax_root_to_leaf_GeneralExpression(node, relaxation_side_map):
@@ -1119,6 +1123,9 @@ _relax_root_to_leaf_map[numeric_expr.DivisionExpression] = (
 _relax_root_to_leaf_map[numeric_expr.UnaryFunctionExpression] = (
     _relax_root_to_leaf_UnaryFunctionExpression
 )
+_relax_root_to_leaf_map[numeric_expr.PowerMonomial] = {
+    _relax_root_to_leaf_PowerMonomial
+}
 _relax_root_to_leaf_map[numeric_expr.NPV_ProductExpression] = (
     _relax_root_to_leaf_ProductExpression
 )
