@@ -96,6 +96,7 @@ from .numeric_expr import (
     SumExpressionBase,  # TODO: deprecate / remove
     SumExpression,
     UnaryFunctionExpression,
+    PowerMonomial,
     # TBD: remove export of NPV classes here?
     NPV_AbsExpression,
     NPV_DivisionExpression,
