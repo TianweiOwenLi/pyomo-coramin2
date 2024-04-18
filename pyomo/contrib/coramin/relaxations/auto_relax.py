@@ -891,6 +891,12 @@ def _relax_leaf_to_root_UnaryFunctionExpression(
         raise NotImplementedError('Cannot automatically relax ' + str(node))
 
 
+def _relax_leaf_to_root_PowerMonomial(
+  node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
+):
+  raise NotImplementedError("blah")
+
+
 def _relax_leaf_to_root_GeneralExpression(
     node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
 ):
@@ -918,6 +924,9 @@ _relax_leaf_to_root_map[numeric_expr.DivisionExpression] = (
 )
 _relax_leaf_to_root_map[numeric_expr.UnaryFunctionExpression] = (
     _relax_leaf_to_root_UnaryFunctionExpression
+)
+_relax_leaf_to_root_map[numeric_expr.PowerMonomial] = (
+    _relax_leaf_to_root_PowerMonomial
 )
 _relax_leaf_to_root_map[numeric_expr.NPV_ProductExpression] = (
     _relax_leaf_to_root_ProductExpression
@@ -1092,9 +1101,10 @@ def _relax_root_to_leaf_UnaryFunctionExpression(node, relaxation_side_map):
     else:
         raise NotImplementedError('Cannot automatically relax ' + str(node))
     
-
+    
 def _relax_root_to_leaf_PowerMonomial(node, relaxation_side_map):
-    raise NotImplemented('We shall construct polynomial envelope here')
+  arg = node.args[0]
+  relaxation_side_map[arg] = RelaxationSide.BOTH
 
 
 def _relax_root_to_leaf_GeneralExpression(node, relaxation_side_map):
@@ -1123,9 +1133,9 @@ _relax_root_to_leaf_map[numeric_expr.DivisionExpression] = (
 _relax_root_to_leaf_map[numeric_expr.UnaryFunctionExpression] = (
     _relax_root_to_leaf_UnaryFunctionExpression
 )
-_relax_root_to_leaf_map[numeric_expr.PowerMonomial] = {
+_relax_root_to_leaf_map[numeric_expr.PowerMonomial] = (
     _relax_root_to_leaf_PowerMonomial
-}
+)
 _relax_root_to_leaf_map[numeric_expr.NPV_ProductExpression] = (
     _relax_root_to_leaf_ProductExpression
 )
