@@ -879,17 +879,58 @@ def _relax_leaf_to_root_UnaryFunctionExpression(
     node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
 ):
     if node.getname() in _unary_leaf_to_root_map:
-        return _unary_leaf_to_root_map[node.getname()](
-            node=node,
-            values=values,
-            aux_var_map=aux_var_map,
-            degree_map=degree_map,
-            parent_block=parent_block,
-            relaxation_side_map=relaxation_side_map,
-            counter=counter,
-        )
+      unary_function_handler = _unary_leaf_to_root_map[node.getname()]
+    elif node.is_polynomial():
+      unary_function_handler = _relax_leaf_to_root_polynomial
     else:
         raise NotImplementedError('Cannot automatically relax ' + str(node))
+    
+    return unary_function_handler(
+      node=node,
+      values=values,
+      aux_var_map=aux_var_map,
+      degree_map=degree_map,
+      parent_block=parent_block,
+      relaxation_side_map=relaxation_side_map,
+      counter=counter,
+    )
+    
+
+def _relax_leaf_to_root_polynomial(
+  node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
+):
+  polynomial_str_repr = NotImplementedError("Need to retrieve polynomial string representation")
+
+  arg = values[0]
+  degree = degree_map[arg]
+  if degree == 0:
+    print(arg)
+    raise NotImplementedError("evaluation not implemented; no pe.polynomial")
+  elif (id(arg), polynomial_str_repr) in aux_var_map: # TODO implement monomial str
+    _aux_var, relaxation = aux_var_map[id(arg), polynomial_str_repr]
+    relaxation_side = relaxation_side_map[node]
+    if relaxation_side != relaxation.relaxation_side: 
+      relaxation.relaxation_side = RelaxationSide.BOTH
+    degree_map[_aux_var] = 1
+    return _aux_var
+  else: 
+    _aux_var = _get_aux_var(parent_block, NotImplementedError('no pe.polynomial'))
+    arg = replace_sub_expression_with_aux_var(arg, parent_block)
+    relaxation_side = relaxation_side_map[node]
+    degree_map[_aux_var] = 1
+
+    relaxation = PWPolynomialRelaxation()
+    relaxation.set_input(
+      x=arg, 
+      aux_var=_aux_var, 
+      relaxation_side=relaxation_side,
+      f_x_expr=NotImplementedError('need to somehow pass polynomial info')
+    )
+
+    aux_var_map[id(arg), polynomial_str_repr] = (_aux_var, relaxation)
+    setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
+    counter.increment()
+    return _aux_var
 
 
 def _relax_leaf_to_root_PowerMonomial(

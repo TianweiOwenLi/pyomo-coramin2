@@ -9,6 +9,8 @@
 #  This software is distributed under the 3-clause BSD License.
 #  ___________________________________________________________________________
 
+import numpy as np
+
 import collections
 import enum
 import logging
@@ -1543,6 +1545,45 @@ class UnaryFunctionExpression(NumericExpression):
 
     def _apply_operation(self, result):
         return self._fcn(result[0])
+    
+
+class PolynomialExpression(NumericExpression):
+  """
+  Polynomial expression, consisting of a polynomial basis, as well as 
+  coefficients under such a basis
+  """
+  __slots__ = ('_coeff', '_basis')
+
+  def __init__(self, args, coeff : np.ndarray, basis : np.ndarray):
+    self._args = args
+    self._coeff = coeff
+    self._basis = basis
+
+    self._n = len(self._coeff) # highest power of polynomial
+    assert(self._basis.shape == (self._n, self._n))
+
+  def nargs(self):
+    return 1
+  
+  def create_note_with_local_data(self, args, classtype=None):
+    if classtype is None:
+      classtype = self.__class__
+    return classtype(args, self._coeff, self._basis)
+
+  def getname(self, *args, **kwds):
+    raise NotImplementedError('what would be a good name of this?')
+
+  def _apply_operation(self, result):
+    """
+    Evaluates polynomial by performing nested eval on power form
+    """
+    power_coeff = self._basis @ self._coeff
+    val, ret = result[0], 0
+    for c in power_coeff[::-1]:
+      ret *= val
+      ret += c
+    return ret
+
 
 
 class NPV_UnaryFunctionExpression(Numeric_NPV_Mixin, UnaryFunctionExpression):
