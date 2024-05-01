@@ -17,6 +17,7 @@ from .univariate import (
     PWCosRelaxation,
     PWSinRelaxation,
     PWArctanRelaxation,
+    PWPolynomialRelaxation,
 )
 from .mccormick import PWMcCormickRelaxation
 from pyomo.contrib.coramin.utils.coramin_enums import RelaxationSide, FunctionShape
@@ -894,7 +895,36 @@ def _relax_leaf_to_root_UnaryFunctionExpression(
 def _relax_leaf_to_root_PowerMonomial(
   node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
 ):
-  raise NotImplementedError("blah")
+  arg = values[0]
+  degree = degree_map[arg]
+  if degree == 0:
+    print(arg)
+    raise NotImplementedError("evaluation not implemented")
+  elif (id(arg), monomial_str_expr) in aux_var_map: # TODO implement monomial str
+    _aux_var, relaxation = aux_var_map[id(arg), monomial_str_expr]
+    relaxation_side = relaxation_side_map[node]
+    if relaxation_side != relaxation.relaxation_side: 
+      relaxation.relaxation_side = RelaxationSide.BOTH
+    degree_map[_aux_var] = 1
+    return _aux_var
+  else: 
+    _aux_var = _get_aux_var(parent_block, NotImplementedError('no pe.monomial'))
+    arg = replace_sub_expression_with_aux_var(arg, parent_block)
+    relaxation_side = relaxation_side_map[node]
+    degree_map[_aux_var] = 1
+
+    relaxation = PWPolynomialRelaxation()
+    relaxation.set_input(
+      x=arg, 
+      aux_var=_aux_var, 
+      relaxation_side=relaxation_side,
+      f_x_expr=NotImplementedError('need to somehow pass polynomial info')
+    )
+
+    aux_var_map[id(arg), monomial_str_expr] = (_aux_var, relaxation)
+    setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
+    counter.increment()
+    return _aux_var
 
 
 def _relax_leaf_to_root_GeneralExpression(
