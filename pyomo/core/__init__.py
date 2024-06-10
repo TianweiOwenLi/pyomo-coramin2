@@ -57,6 +57,7 @@ from pyomo.core.expr import (
     atanh,
     ceil,
     floor,
+    polynomial,  # pyomo polynomial
     Expr_if,
 )
 

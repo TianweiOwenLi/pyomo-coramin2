@@ -139,6 +139,7 @@ from pyomo.core import (
     atanh,
     ceil,
     floor,
+    polynomial,  # pyomo polynomial
     Expr_if,
     differentiate,
     taylor_series_expansion,

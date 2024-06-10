@@ -129,6 +129,7 @@ from .numeric_expr import (
     atanh,
     ceil,
     floor,
+    polynomial,  # pyomo polynomial
     # Lgacy utilities
     NPV_expression_types,  # TODO: remove
     LinearDecompositionError,  # TODO: move to common.errors

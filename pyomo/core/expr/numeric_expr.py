@@ -1573,7 +1573,7 @@ class PolynomialExpression(NumericExpression):
   def getname(self, *args, **kwds):
     raise NotImplementedError('what would be a good name of this?')
   
-  def get_power_coeff(self):
+  def get_power_coeff(self) -> np.ndarray:
     """
     Polynomial coeff's in power basis, ranked with increasing exponent
     """
