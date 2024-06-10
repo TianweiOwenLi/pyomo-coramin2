@@ -4094,7 +4094,7 @@ def atanh(arg):
 
 
 def polynomial(arg, coeff, basis):
-    return _fcn_dispatcher[arg.__class__](arg, coeff, basis)
+    return PolynomialExpression(arg, coeff, basis)
 
 
 #
