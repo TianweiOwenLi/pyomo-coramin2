@@ -1571,7 +1571,24 @@ class PolynomialExpression(NumericExpression):
     return classtype(args, self._coeff, self._basis)
 
   def getname(self, *args, **kwds):
-    raise NotImplementedError('what would be a good name of this?')
+
+    def pprint_exp(var : str, pow : int) -> str:
+      if pow < 0:
+        assert(False) # polynomial has no neg pow
+      elif pow == 0:
+        return '1'
+      elif pow == 1:
+        return var
+      else:
+          return f'{var}^{pow}'
+      
+    fn_str = ' + '.join([
+      f'{c}*{pprint_exp('x', pow)}' 
+      for (pow, c) in enumerate(self.get_power_coeff())
+    ])
+
+    return f'[{fn_str}]({self.arg[0]})'
+      
   
   def get_power_coeff(self) -> np.ndarray:
     """
