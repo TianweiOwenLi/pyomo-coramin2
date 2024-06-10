@@ -1572,7 +1572,7 @@ class PolynomialExpression(NumericExpression):
 
   def getname(self, *args, **kwds):
 
-    def pprint_exp(var : str, pow : int) -> str:
+    def pow_str(var : str, pow : int) -> str:
       if pow < 0:
         assert(False) # polynomial has no neg pow
       elif pow == 0:
@@ -1583,8 +1583,7 @@ class PolynomialExpression(NumericExpression):
           return f'{var}^{pow}'
       
     fn_str = ' + '.join([
-      f'{c}*{pprint_exp('x', pow)}' 
-      for (pow, c) in enumerate(self.get_power_coeff())
+      f'{c}*{pow_str('x', pow)}' for (pow, c) in enumerate(self.get_power_coeff())
     ])
 
     return f'[{fn_str}]({self.arg[0]})'
