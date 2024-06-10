@@ -1572,21 +1572,22 @@ class PolynomialExpression(NumericExpression):
 
   def getname(self, *args, **kwds):
 
-    def pow_str(var : str, pow : int) -> str:
-      if pow < 0:
+    def coeff_pow_str(coeff, pow_num : int) -> str:
+      if pow_num < 0:
         assert(False) # polynomial has no neg pow
-      elif pow == 0:
+      elif pow_num == 0:
         return '1'
-      elif pow == 1:
-        return var
-      else:
-          return f'{var}^{pow}'
-      
+      elif pow_num == 1:
+        return 'x'
+      elif coeff == 1.0:
+        return f'x^{pow_num}'
+      return f'{coeff}*x^{pow_num}'
+
     fn_str = ' + '.join([
-      f'{c}*{pow_str('x', pow)}' for (pow, c) in enumerate(self.get_power_coeff())
+      coeff_pow_str(c, pow) for (pow, c) in enumerate(self.get_power_coeff())
     ])
 
-    return f'[{fn_str}]({self.arg[0]})'
+    return f'[{fn_str}]({self._args_[0]})'
       
   
   def get_power_coeff(self) -> np.ndarray:
