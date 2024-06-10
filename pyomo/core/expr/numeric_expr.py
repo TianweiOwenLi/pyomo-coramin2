@@ -1587,7 +1587,7 @@ class PolynomialExpression(NumericExpression):
       coeff_pow_str(c, pow) for (pow, c) in enumerate(self.get_power_coeff())
     ])
 
-    return f'[{fn_str}]({self._args_[0]})'
+    return f'[{fn_str}]'
       
   
   def get_power_coeff(self) -> np.ndarray:
@@ -1606,6 +1606,9 @@ class PolynomialExpression(NumericExpression):
       ret *= val
       ret += c
     return ret
+  
+  def _to_string(self, values):
+      return f'{self.getname()}({', '.join(values)})'
 
 
 
