@@ -1608,7 +1608,7 @@ class PolynomialExpression(NumericExpression):
     return ret
   
   def _to_string(self, values):
-      return f'{self.getname()}({', '.join(values)})'
+    return f"{self.getname()}({', '.join(values)})"
 
 
 
