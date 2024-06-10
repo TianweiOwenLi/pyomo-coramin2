@@ -1572,12 +1572,18 @@ class PolynomialExpression(NumericExpression):
 
   def getname(self, *args, **kwds):
     raise NotImplementedError('what would be a good name of this?')
+  
+  def get_power_coeff(self):
+    """
+    Polynomial coeff's in power basis, ranked with increasing exponent
+    """
+    return self._basis @ self._coeff
 
   def _apply_operation(self, result):
     """
     Evaluates polynomial by performing nested eval on power form
     """
-    power_coeff = self._basis @ self._coeff
+    power_coeff = self.get_power_coeff()
     val, ret = result[0], 0
     for c in power_coeff[::-1]:
       ret *= val
@@ -4065,6 +4071,10 @@ def acosh(arg):
 
 def atanh(arg):
     return _fcn_dispatcher[arg.__class__](arg, 'atanh', math.atanh)
+
+
+def polynomial(arg, coeff, basis):
+    return _fcn_dispatcher[arg.__class__](arg, coeff, basis)
 
 
 #
