@@ -1607,7 +1607,7 @@ class PolynomialExpression(NumericExpression):
       ret += c
     return ret
   
-  def _to_string(self, values):
+  def _to_string(self, values, verbose, smap):
     return f"{self.getname()}({', '.join(values)})"
 
 
