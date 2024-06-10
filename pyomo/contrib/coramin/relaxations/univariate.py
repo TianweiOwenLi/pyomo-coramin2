@@ -640,6 +640,11 @@ def pw_arctan_relaxation(
 
     return x_pts
 
+@declare_custom_block(name='PWPolynomialRelaxation')
+class PWPolynomialRelaxationData(BasePWRelaxationData):
+  """
+  A class for relaxing polynomial basis functions. 
+  """
 
 @declare_custom_block(name='PWUnivariateRelaxation')
 class PWUnivariateRelaxationData(BasePWRelaxationData):

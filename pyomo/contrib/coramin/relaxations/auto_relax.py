@@ -1,6 +1,6 @@
 import pyomo.environ as pe
 from pyomo.common.collections import ComponentMap
-import pyomo_coramin2.pyomo.core.expr.numeric_expr as numeric_expr
+import pyomo.core.expr.numeric_expr as numeric_expr
 from pyomo.core.expr.visitor import ExpressionValueVisitor
 from pyomo.core.expr.numvalue import (
     nonpyomo_leaf_types,
@@ -933,41 +933,6 @@ def _relax_leaf_to_root_polynomial(
     return _aux_var
 
 
-def _relax_leaf_to_root_PowerMonomial(
-  node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
-):
-  arg = values[0]
-  degree = degree_map[arg]
-  if degree == 0:
-    print(arg)
-    raise NotImplementedError("evaluation not implemented")
-  elif (id(arg), monomial_str_expr) in aux_var_map: # TODO implement monomial str
-    _aux_var, relaxation = aux_var_map[id(arg), monomial_str_expr]
-    relaxation_side = relaxation_side_map[node]
-    if relaxation_side != relaxation.relaxation_side: 
-      relaxation.relaxation_side = RelaxationSide.BOTH
-    degree_map[_aux_var] = 1
-    return _aux_var
-  else: 
-    _aux_var = _get_aux_var(parent_block, NotImplementedError('no pe.monomial'))
-    arg = replace_sub_expression_with_aux_var(arg, parent_block)
-    relaxation_side = relaxation_side_map[node]
-    degree_map[_aux_var] = 1
-
-    relaxation = PWPolynomialRelaxation()
-    relaxation.set_input(
-      x=arg, 
-      aux_var=_aux_var, 
-      relaxation_side=relaxation_side,
-      f_x_expr=NotImplementedError('need to somehow pass polynomial info')
-    )
-
-    aux_var_map[id(arg), monomial_str_expr] = (_aux_var, relaxation)
-    setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
-    counter.increment()
-    return _aux_var
-
-
 def _relax_leaf_to_root_GeneralExpression(
     node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
 ):
@@ -996,8 +961,8 @@ _relax_leaf_to_root_map[numeric_expr.DivisionExpression] = (
 _relax_leaf_to_root_map[numeric_expr.UnaryFunctionExpression] = (
     _relax_leaf_to_root_UnaryFunctionExpression
 )
-_relax_leaf_to_root_map[numeric_expr.PowerMonomial] = (
-    _relax_leaf_to_root_PowerMonomial
+_relax_leaf_to_root_map[numeric_expr.PolynomialExpression] = (
+    _relax_leaf_to_root_polynomial
 )
 _relax_leaf_to_root_map[numeric_expr.NPV_ProductExpression] = (
     _relax_leaf_to_root_ProductExpression
@@ -1173,7 +1138,7 @@ def _relax_root_to_leaf_UnaryFunctionExpression(node, relaxation_side_map):
         raise NotImplementedError('Cannot automatically relax ' + str(node))
     
     
-def _relax_root_to_leaf_PowerMonomial(node, relaxation_side_map):
+def _relax_root_to_leaf_polynomial(node, relaxation_side_map):
   arg = node.args[0]
   relaxation_side_map[arg] = RelaxationSide.BOTH
 
@@ -1204,8 +1169,8 @@ _relax_root_to_leaf_map[numeric_expr.DivisionExpression] = (
 _relax_root_to_leaf_map[numeric_expr.UnaryFunctionExpression] = (
     _relax_root_to_leaf_UnaryFunctionExpression
 )
-_relax_root_to_leaf_map[numeric_expr.PowerMonomial] = (
-    _relax_root_to_leaf_PowerMonomial
+_relax_root_to_leaf_map[numeric_expr.PolynomialExpression] = (
+    _relax_root_to_leaf_polynomial
 )
 _relax_root_to_leaf_map[numeric_expr.NPV_ProductExpression] = (
     _relax_root_to_leaf_ProductExpression
