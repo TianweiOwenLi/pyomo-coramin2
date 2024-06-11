@@ -864,6 +864,44 @@ def _relax_leaf_to_root_tan(
         return _aux_var
 
 
+def _relax_leaf_to_root_basis(
+  node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
+):
+  print(node, values[0], parent_block)
+  assert(False) # unimpl'd
+  # arg = values[0]
+  # degree = degree_map[arg]
+  # if degree == 0:
+  #     res = 0
+  #     assert(False)
+  #     degree_map[res] = 0
+  #     return res
+  # elif (id(arg), 'log10') in aux_var_map:
+  #     _aux_var, relaxation = aux_var_map[id(arg), 'log10']
+  #     relaxation_side = relaxation_side_map[node]
+  #     if relaxation_side != relaxation.relaxation_side:
+  #         relaxation.relaxation_side = RelaxationSide.BOTH
+  #     degree_map[_aux_var] = 1
+  #     return _aux_var
+  # else:
+  #     _aux_var = _get_aux_var(parent_block, pe.log10(arg))
+  #     arg = replace_sub_expression_with_aux_var(arg, parent_block)
+  #     relaxation_side = relaxation_side_map[node]
+  #     degree_map[_aux_var] = 1
+  #     relaxation = PWUnivariateRelaxation()
+  #     relaxation.set_input(
+  #         x=arg,
+  #         aux_var=_aux_var,
+  #         relaxation_side=relaxation_side,
+  #         f_x_expr=pe.log10(arg),
+  #         shape=FunctionShape.CONCAVE,
+  #     )
+  #     aux_var_map[id(arg), 'log10'] = (_aux_var, relaxation)
+  #     setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
+  #     counter.increment()
+  #     return _aux_var
+
+
 _unary_leaf_to_root_map = dict()
 _unary_leaf_to_root_map['exp'] = _relax_leaf_to_root_exp
 _unary_leaf_to_root_map['log'] = _relax_leaf_to_root_log
@@ -880,8 +918,8 @@ def _relax_leaf_to_root_UnaryFunctionExpression(
 ):
     if node.getname() in _unary_leaf_to_root_map:
       unary_function_handler = _unary_leaf_to_root_map[node.getname()]
-    elif node.is_polynomial():
-      unary_function_handler = _relax_leaf_to_root_polynomial
+    elif node.getname().startswith('b_'): # basis
+      unary_function_handler = _relax_leaf_to_root_basis
     else:
         raise NotImplementedError('Cannot automatically relax ' + str(node))
     
@@ -924,7 +962,7 @@ def _relax_leaf_to_root_polynomial(
     degree_map[_aux_var] = 1
 
     relaxation = PWPolynomialRelaxation()
-    
+
     assert(False)
     relaxation.set_input(
       x=arg, 
@@ -1126,6 +1164,11 @@ def _relax_root_to_leaf_tan(node, relaxation_side_map):
     relaxation_side_map[arg] = RelaxationSide.BOTH
 
 
+def _relax_root_to_leaf_basis(node, relaxation_side_map):
+    arg = node.args[0]
+    relaxation_side_map[arg] = RelaxationSide.BOTH # TODO can optimize?
+
+
 _unary_root_to_leaf_map = dict()
 _unary_root_to_leaf_map['exp'] = _relax_root_to_leaf_exp
 _unary_root_to_leaf_map['log'] = _relax_root_to_leaf_log
@@ -1139,7 +1182,9 @@ _unary_root_to_leaf_map['tan'] = _relax_root_to_leaf_tan
 
 def _relax_root_to_leaf_UnaryFunctionExpression(node, relaxation_side_map):
     if node.getname() in _unary_root_to_leaf_map:
-        _unary_root_to_leaf_map[node.getname()](node, relaxation_side_map)
+      _unary_root_to_leaf_map[node.getname()](node, relaxation_side_map)
+    elif node.getname().startswith('b_'): # basis
+      _relax_root_to_leaf_basis(node, relaxation_side_map)
     else:
         raise NotImplementedError('Cannot automatically relax ' + str(node))
     
