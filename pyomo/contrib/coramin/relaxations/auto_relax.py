@@ -1,6 +1,9 @@
 import pyomo.environ as pe
 from pyomo.common.collections import ComponentMap
 import pyomo.core.expr.numeric_expr as numeric_expr
+from pyomo.core.expr.numeric_expr import (
+  UnaryFunctionExpression
+)
 from pyomo.core.expr.visitor import ExpressionValueVisitor
 from pyomo.core.expr.numvalue import (
     nonpyomo_leaf_types,
@@ -17,7 +20,7 @@ from .univariate import (
     PWCosRelaxation,
     PWSinRelaxation,
     PWArctanRelaxation,
-    PWPolynomialRelaxation,
+    PWPolynomialBasisRelaxation,
 )
 from .mccormick import PWMcCormickRelaxation
 from pyomo.contrib.coramin.utils.coramin_enums import RelaxationSide, FunctionShape
@@ -881,23 +884,30 @@ def _relax_leaf_to_root_basis(
       degree_map[_aux_var] = 1
       return _aux_var
   else:
-      _aux_var = _get_aux_var(parent_block, node._fcn(arg))
+      _aux_var = _get_aux_var(
+        parent_block, 
+        UnaryFunctionExpression(
+          (arg, ),
+          node.getname(),
+          node._fcn
+        )
+      )
       arg = replace_sub_expression_with_aux_var(arg, parent_block)
       relaxation_side = relaxation_side_map[node]
       degree_map[_aux_var] = 1
+      relaxation = PWPolynomialBasisRelaxation()
       assert(False)
-      # relaxation = PWUnivariateRelaxation()
       # relaxation.set_input(
       #     x=arg,
       #     aux_var=_aux_var,
       #     relaxation_side=relaxation_side,
-      #     f_x_expr=pe.log10(arg),
-      #     shape=FunctionShape.CONCAVE,
+      #     f_x_expr=node._fcn(arg),
+      #     ...
       # )
-      # aux_var_map[id(arg), 'log10'] = (_aux_var, relaxation)
-      # setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
-      # counter.increment()
-      # return _aux_var
+      aux_var_map[id(arg), node.getname()] = (_aux_var, relaxation)
+      setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
+      counter.increment()
+      return _aux_var
 
 
 _unary_leaf_to_root_map = dict()
