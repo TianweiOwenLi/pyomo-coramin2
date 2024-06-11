@@ -870,6 +870,7 @@ def _relax_leaf_to_root_tan(
 def _relax_leaf_to_root_basis(
   node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
 ):
+  assert(node.getname().startswith('b_'))
   arg = values[0]
   degree = degree_map[arg]
   if degree == 0:
@@ -896,14 +897,17 @@ def _relax_leaf_to_root_basis(
       relaxation_side = relaxation_side_map[node]
       degree_map[_aux_var] = 1
       relaxation = PWPolynomialBasisRelaxation()
-      assert(False)
-      # relaxation.set_input(
-      #     x=arg,
-      #     aux_var=_aux_var,
-      #     relaxation_side=relaxation_side,
-      #     f_x_expr=node._fcn(arg),
-      #     ...
-      # )
+      relaxation.set_input(
+        x=arg,
+        aux_var=_aux_var,
+        f_x_expr=UnaryFunctionExpression(
+          (arg, ),
+          node.getname(),
+          node._fcn
+        ),
+        power_coeffs = parent_block.basis[:,int(node.getname()[2:])],
+        relaxation_side=relaxation_side
+      )
       aux_var_map[id(arg), node.getname()] = (_aux_var, relaxation)
       setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
       counter.increment()

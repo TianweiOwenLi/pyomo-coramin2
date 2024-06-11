@@ -640,11 +640,66 @@ def pw_arctan_relaxation(
 
     return x_pts
 
+
 @declare_custom_block(name='PWPolynomialBasisRelaxation')
 class PWPolynomialBasisRelaxationData(BasePWRelaxationData):
   """
   A class for relaxing polynomial basis functions. 
   """
+
+  def __init__(self, component):
+    super().__init__(component)
+    self._x = None
+    self._aux_var = None
+    self._pw_repn = 'INC'
+    self._function_shape = FunctionShape.UNKNOWN
+    self._f_x_expr = None
+    self._power_coeffs = None
+    self._lower_graph_tangents = []
+    self._upper_graph_tangents = []
+
+  def get_rhs_vars(self):
+    return (self._x,)
+
+  def get_rhs_expr(self):
+    return self._f_x_expr
+  
+  def vars_with_bounds_in_relaxation(self):
+    res = list()
+    res.append(self._x)
+    return res
+  
+  def set_input(
+        self,
+        x,
+        aux_var,
+        f_x_expr,
+        power_coeffs,
+        relaxation_side=RelaxationSide.BOTH,
+        pw_repn='INC',
+        use_linear_relaxation=True,
+        large_coef=1e5,
+        small_coef=1e-10,
+        safety_tol=1e-10,
+        shape=FunctionShape.UNKNOWN
+    ):
+      super().set_input(
+        relaxation_side=relaxation_side,
+        use_linear_relaxation=use_linear_relaxation,
+        large_coef=large_coef,
+        small_coef=small_coef,
+        safety_tol=safety_tol,
+      )
+      self._pw_repn = pw_repn
+      self._function_shape = shape
+      self._f_x_expr = f_x_expr
+      self._power_coeffs = power_coeffs
+
+      object.__setattr__(self, '_x', x)
+      object.__setattr__(self, '_aux_var', aux_var)
+      bnds_list = _get_bnds_list(self._x)
+      self._partitions[self._x] = bnds_list
+
 
 @declare_custom_block(name='PWUnivariateRelaxation')
 class PWUnivariateRelaxationData(BasePWRelaxationData):
