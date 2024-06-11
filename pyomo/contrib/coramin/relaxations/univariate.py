@@ -670,35 +670,85 @@ class PWPolynomialBasisRelaxationData(BasePWRelaxationData):
     return res
   
   def set_input(
-        self,
-        x,
-        aux_var,
-        f_x_expr,
-        power_coeffs,
-        relaxation_side=RelaxationSide.BOTH,
-        pw_repn='INC',
-        use_linear_relaxation=True,
-        large_coef=1e5,
-        small_coef=1e-10,
-        safety_tol=1e-10,
-        shape=FunctionShape.UNKNOWN
-    ):
-      super().set_input(
-        relaxation_side=relaxation_side,
-        use_linear_relaxation=use_linear_relaxation,
-        large_coef=large_coef,
-        small_coef=small_coef,
-        safety_tol=safety_tol,
-      )
-      self._pw_repn = pw_repn
-      self._function_shape = shape
-      self._f_x_expr = f_x_expr
-      self._power_coeffs = power_coeffs
+    self,
+    x,
+    aux_var,
+    f_x_expr,
+    power_coeffs,
+    relaxation_side=RelaxationSide.BOTH,
+    pw_repn='INC',
+    use_linear_relaxation=True,
+    large_coef=1e5,
+    small_coef=1e-10,
+    safety_tol=1e-10,
+    shape=FunctionShape.UNKNOWN
+  ):
+    super().set_input(
+      relaxation_side=relaxation_side,
+      use_linear_relaxation=use_linear_relaxation,
+      large_coef=large_coef,
+      small_coef=small_coef,
+      safety_tol=safety_tol,
+    )
+    self._pw_repn = pw_repn
+    self._function_shape = shape
+    self._f_x_expr = f_x_expr
+    self._power_coeffs = power_coeffs
 
-      object.__setattr__(self, '_x', x)
-      object.__setattr__(self, '_aux_var', aux_var)
-      bnds_list = _get_bnds_list(self._x)
-      self._partitions[self._x] = bnds_list
+    object.__setattr__(self, '_x', x)
+    object.__setattr__(self, '_aux_var', aux_var)
+    bnds_list = _get_bnds_list(self._x)
+    self._partitions[self._x] = bnds_list
+
+  def build(
+    self,
+    x,
+    aux_var,
+    f_x_expr,
+    power_coeffs,
+    relaxation_side=RelaxationSide.BOTH,
+    pw_repn='INC',
+    use_linear_relaxation=True,
+    large_coef=1e5,
+    small_coef=1e-10,
+    safety_tol=1e-10,
+    shape=FunctionShape.UNKNOWN
+  ):
+    self.set_input(
+      x=x,
+      aux_var=aux_var,
+      f_x_expr=f_x_expr,
+      power_coeffs=power_coeffs,
+      relaxation_side=relaxation_side,
+      pw_repn=pw_repn,
+      use_linear_relaxation=use_linear_relaxation,
+      large_coef=large_coef,
+      small_coef=small_coef,
+      safety_tol=safety_tol,
+      shape=shape
+    )
+    self.rebuild()
+
+  def rebuild():
+    raise NotImplementedError('bad')
+  
+  def add_partition_point(self, value=None):
+    self._add_partition_point(self._x, value)
+    assert(False) # needs to recompute cuts
+  
+  def is_rhs_convex(self):
+    return False # handled by polynomial relaxations
+
+  def is_rhs_concave(self):
+    return False
+
+  @property
+  def use_linear_relaxation(self):
+      return self._use_linear_relaxation
+
+  @use_linear_relaxation.setter
+  def use_linear_relaxation(self, val):
+      self._use_linear_relaxation = val
 
 
 @declare_custom_block(name='PWUnivariateRelaxation')
