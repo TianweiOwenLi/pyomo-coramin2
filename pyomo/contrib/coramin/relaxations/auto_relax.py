@@ -867,39 +867,37 @@ def _relax_leaf_to_root_tan(
 def _relax_leaf_to_root_basis(
   node, values, aux_var_map, degree_map, parent_block, relaxation_side_map, counter
 ):
-  print(node, values[0], parent_block)
-  assert(False) # unimpl'd
-  # arg = values[0]
-  # degree = degree_map[arg]
-  # if degree == 0:
-  #     res = 0
-  #     assert(False)
-  #     degree_map[res] = 0
-  #     return res
-  # elif (id(arg), 'log10') in aux_var_map:
-  #     _aux_var, relaxation = aux_var_map[id(arg), 'log10']
-  #     relaxation_side = relaxation_side_map[node]
-  #     if relaxation_side != relaxation.relaxation_side:
-  #         relaxation.relaxation_side = RelaxationSide.BOTH
-  #     degree_map[_aux_var] = 1
-  #     return _aux_var
-  # else:
-  #     _aux_var = _get_aux_var(parent_block, pe.log10(arg))
-  #     arg = replace_sub_expression_with_aux_var(arg, parent_block)
-  #     relaxation_side = relaxation_side_map[node]
-  #     degree_map[_aux_var] = 1
-  #     relaxation = PWUnivariateRelaxation()
-  #     relaxation.set_input(
-  #         x=arg,
-  #         aux_var=_aux_var,
-  #         relaxation_side=relaxation_side,
-  #         f_x_expr=pe.log10(arg),
-  #         shape=FunctionShape.CONCAVE,
-  #     )
-  #     aux_var_map[id(arg), 'log10'] = (_aux_var, relaxation)
-  #     setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
-  #     counter.increment()
-  #     return _aux_var
+  arg = values[0]
+  degree = degree_map[arg]
+  if degree == 0:
+      res = node._fcn(arg)
+      degree_map[res] = 0
+      return res
+  elif (id(arg), node.getname()) in aux_var_map:
+      _aux_var, relaxation = aux_var_map[id(arg), node.getname()]
+      relaxation_side = relaxation_side_map[node]
+      if relaxation_side != relaxation.relaxation_side:
+          relaxation.relaxation_side = RelaxationSide.BOTH
+      degree_map[_aux_var] = 1
+      return _aux_var
+  else:
+      _aux_var = _get_aux_var(parent_block, node._fcn(arg))
+      arg = replace_sub_expression_with_aux_var(arg, parent_block)
+      relaxation_side = relaxation_side_map[node]
+      degree_map[_aux_var] = 1
+      assert(False)
+      # relaxation = PWUnivariateRelaxation()
+      # relaxation.set_input(
+      #     x=arg,
+      #     aux_var=_aux_var,
+      #     relaxation_side=relaxation_side,
+      #     f_x_expr=pe.log10(arg),
+      #     shape=FunctionShape.CONCAVE,
+      # )
+      # aux_var_map[id(arg), 'log10'] = (_aux_var, relaxation)
+      # setattr(parent_block.relaxations, 'rel' + str(counter), relaxation)
+      # counter.increment()
+      # return _aux_var
 
 
 _unary_leaf_to_root_map = dict()
