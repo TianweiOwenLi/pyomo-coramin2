@@ -729,8 +729,14 @@ class PWPolynomialBasisRelaxationData(BasePWRelaxationData):
     )
     self.rebuild()
 
-  def rebuild():
-    raise NotImplementedError('bad')
+  def rebuild(self, build_nonlinear_constraint=False, ensure_oa_at_vertices=True):
+    # super().rebuild(
+    #     build_nonlinear_constraint=build_nonlinear_constraint,
+    #     ensure_oa_at_vertices=ensure_oa_at_vertices,
+    # )
+    print(self._aux_var.lb, self._aux_var.ub)
+    assert(False)
+
   
   def add_partition_point(self, value=None):
     self._add_partition_point(self._x, value)
