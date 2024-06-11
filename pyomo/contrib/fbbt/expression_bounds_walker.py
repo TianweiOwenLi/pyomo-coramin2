@@ -218,8 +218,25 @@ def _handle_AbsExpression(visitor, node, arg):
     return interval_abs(*arg)
 
 
+import numpy as np
+
 def _handle_UnaryFunctionExpression(visitor, node, arg):
-    return _unary_function_dispatcher[node.getname()](visitor, node, arg)
+  """
+  Modified for uses in polynomial basis synthesis
+  """
+  if node.getname().startswith('b_'): # polynomial basis
+    # TODO fix this bad code...
+    lb, ub = arg
+    xs = np.arange(lb, ub, (ub-lb) / 100.0)
+    l, u = float('inf'), float('-inf')
+    for x in xs:
+      fx = node._fcn(x)
+      if fx < l:
+        l = fx
+      if fx > u:
+        u = fx
+    return (l, u)
+  return _unary_function_dispatcher[node.getname()](visitor, node, arg)
 
 
 def _handle_named_expression(visitor, node, arg):
