@@ -94,4 +94,11 @@ def clone_shallow_active_flat(m1: _BlockData, num_clones: int = 1) -> List[_Bloc
     for m2 in clone_list:
         m2.vars = list(all_vars)
 
+        # copy over the polynomial-basis-synthesis related attrs. 
+        if hasattr(m1, 'basis'):
+            m2.basis = m1.basis
+            m2.basis_fns = m1.basis_fns
+            m2.mk_monomial = m1.mk_monomial
+            m2.mk_polynomial = m1.mk_polynomial
+
     return clone_list
