@@ -13,6 +13,8 @@ import logging
 from typing import Optional, Union, Sequence
 from pyomo.core.expr.calculus.diff_with_pyomo import reverse_sd
 
+from .polynomial_relaxation_utils import *
+
 logger = logging.getLogger(__name__)
 pe = pyo
 
@@ -734,8 +736,36 @@ class PWPolynomialBasisRelaxationData(BasePWRelaxationData):
     #     build_nonlinear_constraint=build_nonlinear_constraint,
     #     ensure_oa_at_vertices=ensure_oa_at_vertices,
     # )
-    print(self._aux_var.lb, self._aux_var.ub)
-    assert(False)
+    f, ddf = construct_polynomial_double_deriv_pair(self._power_coeffs)
+    g, ddg = construct_polynomial_double_deriv_pair(-1 * self._power_coeffs)
+
+    # TODO fast method for re-computing tangents
+    f_segs = cvx_tangent_segment(f, ddf, self._x.lb, self._x.ub)
+    g_segs = cvx_tangent_segment(g, ddg, self._x.lb, self._x.ub)
+
+
+    # next, convert these tangent points to cut expressions
+
+    self._lower_graph_tangents = []
+    for ((x1,y1),(x2,y2)) in f_segs: 
+      k = (y2-y1) / (x2-x1)
+      b = y1 - k * x1
+      e = k * self._x + b
+      self._lower_graph_tangents.append(e)
+
+    self._upper_graph_tangents = []
+    for ((x1,y1),(x2,y2)) in g_segs: 
+      k = (y2-y1) / (x2-x1)
+      b = y1 - k * x1
+      e = - k * self._x - b # since we mirrored f across x axis to get g_segs
+      self._upper_graph_tangents.append(e)
+
+    
+    # add cuts 
+
+    pass
+    # print(self._aux_var.lb, self._aux_var.ub)
+    # assert(False)
 
   
   def add_partition_point(self, value=None):
