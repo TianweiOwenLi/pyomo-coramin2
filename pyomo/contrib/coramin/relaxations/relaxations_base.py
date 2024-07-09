@@ -670,7 +670,7 @@ class BaseRelaxationData(_BlockData):
         return None
       
       new_con = None
-      oa_cut = _OACut(self._get_expr_for_oa(), x, [k], b)
+      oa_cut = _OACut(self._get_expr_for_oa(), [x], [k], b)
       oa_cut.current_pt = var_vals
 
       if not self._cuts:
