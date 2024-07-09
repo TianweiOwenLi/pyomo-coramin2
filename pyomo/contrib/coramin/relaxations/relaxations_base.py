@@ -672,11 +672,15 @@ class BaseRelaxationData(_BlockData):
       new_con = None
       oa_cut = _OACut(self._get_expr_for_oa(), x, [k], b)
 
+      if not self._cuts:
+        del self._cuts
+        self._cuts = IndexedConstraint(pe.Any)
+
       if under:
           self._cuts[oa_cut] = self.get_aux_var() >= oa_cut.cut_expr
       else:
           self._cuts[oa_cut] = self.get_aux_var() <= oa_cut.cut_expr
-          
+
       self._oa_points[var_vals] = oa_cut
 
       return new_con
