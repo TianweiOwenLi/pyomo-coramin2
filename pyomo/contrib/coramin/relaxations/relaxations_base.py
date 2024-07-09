@@ -655,6 +655,24 @@ class BaseRelaxationData(_BlockData):
 
         return new_con
 
+    def unsafe_add_cut(self, k, x, b) -> Optional[_GeneralConstraintData]:
+      """
+      Unsafe version of "add_cut", needs to be fixed later
+
+      Also only works for 1 variable
+      """
+      var_vals = tuple(v.value for v in self.get_rhs_vars())
+
+      if var_vals in self._oa_points:
+        return None
+      
+      new_con = None
+      oa_cut = _OACut(self._get_expr_for_oa(), x, [k], b)
+      new_con = self._add_oa_cut(pt_tuple=var_vals, oa_cut=oa_cut)
+      self._oa_points[var_vals] = oa_cut
+
+      return new_con
+
     def clean_oa_points(self, ensure_oa_at_vertices=True):
         if not self._has_a_convex_side():
             return
