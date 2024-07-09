@@ -43,8 +43,11 @@ class _OACut(object):
         self.nonlin_expr = nonlin_expr
         self.coefficients = coefficients
         self.offset = offset
-        derivs = reverse_sd(self.nonlin_expr)
-        self.derivs = [derivs[i] for i in self.expr_vars]
+        try:
+          derivs = reverse_sd(self.nonlin_expr)
+          self.derivs = [derivs[i] for i in self.expr_vars]
+        except Exception:
+          print("[relaxation_base._OACut.__init__] bad")
         self.cut_expr = LinearExpression(
             constant=self.offset,
             linear_coefs=self.coefficients,
