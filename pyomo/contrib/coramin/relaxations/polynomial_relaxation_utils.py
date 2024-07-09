@@ -295,7 +295,7 @@ def cvx_tangent_segment(f, ddf, lb: float, ub: float) -> list[Segment]:
   cvx_centers = [_center(seg) for seg in cvx_segments]
 
   if not cvx_centers: # no convex centers, secant line is convex envelope. 
-    return [_segment(f, lb, ub)]
+    return [_segment(f, (lb, ub))]
   
   # if the leftmost convex segment does not include lowerbound lb, then the 
   # function is concave between lb and the lower bound of first convex segment; 
