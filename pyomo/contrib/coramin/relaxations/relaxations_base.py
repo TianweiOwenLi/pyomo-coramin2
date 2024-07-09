@@ -658,7 +658,7 @@ class BaseRelaxationData(_BlockData):
 
         return new_con
 
-    def unsafe_add_cut(self, k, x, b) -> Optional[_GeneralConstraintData]:
+    def unsafe_add_cut(self, k, x, b, under: bool) -> Optional[_GeneralConstraintData]:
       """
       Unsafe version of "add_cut", needs to be fixed later
 
@@ -671,7 +671,12 @@ class BaseRelaxationData(_BlockData):
       
       new_con = None
       oa_cut = _OACut(self._get_expr_for_oa(), x, [k], b)
-      new_con = self._add_oa_cut(pt_tuple=var_vals, oa_cut=oa_cut)
+
+      if under:
+          self._cuts[oa_cut] = self.get_aux_var() >= oa_cut.cut_expr
+      else:
+          self._cuts[oa_cut] = self.get_aux_var() <= oa_cut.cut_expr
+          
       self._oa_points[var_vals] = oa_cut
 
       return new_con
