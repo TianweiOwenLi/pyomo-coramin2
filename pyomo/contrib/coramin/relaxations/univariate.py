@@ -752,7 +752,7 @@ class PWPolynomialBasisRelaxationData(BasePWRelaxationData):
       b = y1 - k * x1
       e = k * self._x + b
 
-      self.unsafe_add_cut(k, self._x, b, True)
+      self.unsafe_add_cut(k, self._x, b, True, (min(x1,x2), ))
 
       self._lower_graph_tangents.append(e)
 
@@ -762,7 +762,7 @@ class PWPolynomialBasisRelaxationData(BasePWRelaxationData):
       b = y1 - k * x1
       e = - k * self._x - b # since we mirrored f across x axis to get g_segs
 
-      self.unsafe_add_cut(-k, self._x, -b, False)
+      self.unsafe_add_cut(-k, self._x, -b, False, (min(x1,x2), ))
 
       self._upper_graph_tangents.append(e)
 
