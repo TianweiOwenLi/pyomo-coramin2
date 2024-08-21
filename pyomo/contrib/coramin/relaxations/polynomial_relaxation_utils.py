@@ -181,30 +181,51 @@ def _compute_closest_secant_tangent(f, b, centers: list[float]):
   return None
 
 
-def wrong_find_all_roots(f, lb, ub) -> list[float]:
-  """
-  Wrong algorithm for finding roots of f between lb and ub. 
+# def wrong_find_all_roots(f, lb, ub) -> list[float]:
+#   """
+#   Wrong algorithm for finding roots of f between lb and ub. 
 
-  TODO replace it with something correct. 
-  """
-  eps = (ub - lb) / 20.0
-  pts = np.arange(lb + (eps/2), ub - (eps/2), eps)
-  roots = []
-  for pt in pts:
-    root = newton_method(f, pt)
-    if lb <= root <= ub:
-      roots.append(root)
+#   TODO replace it with something correct. 
+#   """
+#   eps = (ub - lb) / 20.0
+#   pts = np.arange(lb + (eps/2), ub - (eps/2), eps)
+#   roots = []
+#   for pt in pts:
+#     root = newton_method(f, pt)
+#     if lb <= root <= ub:
+#       roots.append(root)
   
-  roots.sort()
+#   roots.sort()
 
-  # filter out duplicates
-  new_roots, top = [], float('-inf')
-  for root in roots:
-    if root - top > 1e-4:
-      new_roots.append(root)
-      top = root
+#   # filter out duplicates
+#   new_roots, top = [], float('-inf')
+#   for root in roots:
+#     if root - top > 1e-4:
+#       new_roots.append(root)
+#       top = root
   
-  return new_roots
+#   return new_roots
+
+
+def find_all_real_roots_via_power_coeffs(f, lb, ub) -> list[float]:
+  """
+  Finds all real roots of a polynomial `f` between `lb` and `ub`.  
+  
+  ### Args: 
+    `f`: a polynomial (python3 `Callable` object with attr `power_coeffs`)
+
+  ### Returns: 
+    the list of real roots, sorted from small to large, of `f` between `lb`
+    and `ub`. 
+
+  """
+  power_coeffs = list(f.power_coeffs)
+  power_coeffs.reverse()  # numpy.roots args uses different ordering than ours
+
+  rs = np.roots(power_coeffs)
+  rs = [r for r in rs if r.imag == 0.0 and lb <= r.real <= ub]
+  rs.sort()
+  return rs
 
 
 def _interleave(l):
@@ -215,7 +236,7 @@ def compute_positive_segments(f, lb, ub) -> list[tuple[float, float]]:
   """
   Finds all intervals of f between lb, ub where f is positive.
   """
-  roots = wrong_find_all_roots(f, lb, ub)
+  roots = find_all_real_roots_via_power_coeffs(f, lb, ub)
 
   # no roots, either all or nothing.
   if not roots:
@@ -375,6 +396,9 @@ def _construct_polynomial(power_coeffs):
       ret *= x
       ret += c
     return ret
+  
+  f.power_coeffs = power_coeffs
+
   return f
 
 
