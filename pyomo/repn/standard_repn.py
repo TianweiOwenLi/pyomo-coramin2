@@ -1161,9 +1161,6 @@ _repn_collectors = {
 
 
 def _collect_standard_repn(exp, multiplier, idMap, compute_values, verbose, quadratic):
-    
-    print(exp.__class__)
-    
     fn = _repn_collectors.get(exp.__class__, None)
     if fn is not None:
         return fn(exp, multiplier, idMap, compute_values, verbose, quadratic)
