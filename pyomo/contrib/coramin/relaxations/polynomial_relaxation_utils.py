@@ -370,8 +370,16 @@ def _construct_polynomial(power_coeffs):
       ret *= x
       ret += c
     return ret
+
+  def f_derivative(x):
+    ret = 0
+    for c in _df(power_coeffs)[::-1]:
+      ret *= x
+      ret += c
+    return ret
   
   f.power_coeffs = power_coeffs
+  f.diff = f_derivative
 
   return f
 
