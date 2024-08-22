@@ -181,32 +181,6 @@ def _compute_closest_secant_tangent(f, b, centers: list[float]):
   return None
 
 
-# def wrong_find_all_roots(f, lb, ub) -> list[float]:
-#   """
-#   Wrong algorithm for finding roots of f between lb and ub. 
-
-#   TODO replace it with something correct. 
-#   """
-#   eps = (ub - lb) / 20.0
-#   pts = np.arange(lb + (eps/2), ub - (eps/2), eps)
-#   roots = []
-#   for pt in pts:
-#     root = newton_method(f, pt)
-#     if lb <= root <= ub:
-#       roots.append(root)
-  
-#   roots.sort()
-
-#   # filter out duplicates
-#   new_roots, top = [], float('-inf')
-#   for root in roots:
-#     if root - top > 1e-4:
-#       new_roots.append(root)
-#       top = root
-  
-#   return new_roots
-
-
 def find_all_real_roots_via_power_coeffs(f, lb, ub) -> list[float]:
   """
   Finds all real roots of a polynomial `f` between `lb` and `ub`.  
@@ -352,8 +326,8 @@ def cvx_tangent_segment(f, ddf, lb: float, ub: float) -> list[Segment]:
         f, 
         _constrained_graph_tangent(cvx_centers[i], cvx_centers[j])
       )
-    i += 1
-    j += 1
+      
+    i, j = j, j + 1 
 
   return line_segments.export()
 
