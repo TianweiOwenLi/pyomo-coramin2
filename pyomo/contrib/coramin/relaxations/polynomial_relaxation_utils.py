@@ -210,6 +210,7 @@ def compute_positive_segments(f, lb, ub) -> list[tuple[float, float]]:
   """
   Finds all intervals of f between lb, ub where f is positive.
   """
+  assert(lb < ub)
   positive_segments = []
 
   roots = find_all_real_roots_via_power_coeffs(f, lb, ub)
@@ -218,9 +219,9 @@ def compute_positive_segments(f, lb, ub) -> list[tuple[float, float]]:
   # checkpoints: endpoints of positive / negative segments must be between 
   # checkpoints, as per intermediate value theorem. 
   checkpoints = roots
-  if checkpoints[0] > lb:
+  if checkpoints and checkpoints[0] > lb:
     checkpoints = [lb] + checkpoints
-  if checkpoints[-1] < ub:
+  if checkpoints and checkpoints[-1] < ub:
     checkpoints.append(ub)
 
   for (r1, r2) in _interleave(checkpoints):
