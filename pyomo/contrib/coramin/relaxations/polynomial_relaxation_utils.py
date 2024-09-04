@@ -197,7 +197,7 @@ def find_all_real_roots_via_power_coeffs(f, lb, ub) -> list[float]:
   power_coeffs.reverse()  # numpy.roots args uses different ordering than ours
 
   rs = np.roots(power_coeffs)
-  rs = [r for r in rs if r.imag == 0.0 and lb <= r.real <= ub]
+  rs = [r.real for r in rs if r.imag == 0.0 and lb <= r.real <= ub]
   rs.sort()
   return rs
 
@@ -210,25 +210,22 @@ def compute_positive_segments(f, lb, ub) -> list[tuple[float, float]]:
   """
   Finds all intervals of f between lb, ub where f is positive.
   """
-  roots = find_all_real_roots_via_power_coeffs(f, lb, ub)
-
-  # no roots, either all or nothing.
-  if not roots:
-    if f((lb+ub)/2) > 0:
-      return [(lb, ub)]
-    return []
-
   positive_segments = []
 
-  if roots[0] - lb > 1e-4 and f(lb) >= 0:
-    positive_segments.append((lb, roots[0]))
+  roots = find_all_real_roots_via_power_coeffs(f, lb, ub)
 
-  for (r1, r2) in _interleave(roots):
+  # if lb and ub are not roots, we combine them with roots to use as 
+  # checkpoints: endpoints of positive / negative segments must be between 
+  # checkpoints, as per intermediate value theorem. 
+  checkpoints = roots
+  if checkpoints[0] > lb:
+    checkpoints = [lb] + checkpoints
+  if checkpoints[-1] < ub:
+    checkpoints.append(ub)
+
+  for (r1, r2) in _interleave(checkpoints):
     if f((r1+r2)/2) > 0:
       positive_segments.append((r1,r2))
-
-  if ub - roots[-1] > 1e-4 and f(ub) >= 0:
-    positive_segments.append((roots[-1], ub))
 
   return positive_segments
 
